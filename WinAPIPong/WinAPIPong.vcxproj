@@ -127,18 +127,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Ball.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Vect.h" />
     <ClInclude Include="WinAPIPong.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="Vect.cpp" />
     <ClCompile Include="WinAPIPong.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WinAPIPong.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="C:\Users\zeron\Downloads\pong.png" />
     <Image Include="small.ico" />
     <Image Include="WinAPIPong.ico" />
   </ItemGroup>
