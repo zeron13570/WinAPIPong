@@ -75,7 +75,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hInstance      = hInstance;
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINAPIPONG));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WINAPIPONG);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -94,15 +94,20 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //        주 프로그램 창을 만든 다음 표시합니다.
 //
 
-int wHeight = 1280;
-int wWidth = 960;
+//너비
+int wWidth = 1280;
+//높이
+int wHeight = 900;
+
+
+
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, wHeight, wWidth, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, wWidth, wHeight+60, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
@@ -125,6 +130,28 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+
+// 공의 크기
+int ballSize = 20;
+
+// 1p 패들 높이
+int p1Height = 90;
+// 1p 패들 폭
+int p1Width = 15;
+
+// 2p 패들 높이
+int p2Height = 90;
+// 2p 패들 폭
+int p2Width = 15;
+
+HDC hdc;
+
+RECT ball, p1, p2;
+
+int speed = 15;
+
+bool aPress, zPress, upPress, downPress = false;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -146,15 +173,99 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+
+    case WM_KEYDOWN:
+    {
+        switch (wParam)
+        {
+        case 0x41:
+            aPress = true;
+            break;
+        case 0x5a:
+            p1.top += speed;
+            p1.bottom += speed;
+            break;
+        case VK_UP:
+            p2.top -= speed;
+            p2.bottom -= speed;
+            break;
+        case VK_DOWN:
+            p2.top += speed;
+            p2.bottom += speed;
+            break;
+        }
+        if(aPress == true) {
+            p1.top -= speed;
+            p1.bottom -= speed;
+        }
+        InvalidateRect(hWnd, NULL, true);
+    }
+    break;
+
+    case WM_KEYUP:
+    {
+        switch (wParam)
+        {
+        case 0x41:
+            aPress = false;
+            break;
+        case 0x5a:
+            p1.top += speed;
+            p1.bottom += speed;
+            break;
+        case VK_UP:
+            p2.top -= speed;
+            p2.bottom -= speed;
+            break;
+        case VK_DOWN:
+            p2.top += speed;
+            p2.bottom += speed;
+            break;
+        }
+        InvalidateRect(hWnd, NULL, true);
+    }
+    break;
+
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-           
+            hdc = BeginPaint(hWnd, &ps);
+            
+            /* 중앙 수평 확인용
+            MoveToEx(hdc, (wWidth / 2), 0, nullptr);
+            LineTo(hdc, wWidth / 2, wHeight);
+            MoveToEx(hdc, 0, wHeight / 2, nullptr);
+            LineTo(hdc, wWidth, wHeight / 2);
+            */
+
+            Ellipse(hdc, ball.left, ball.top, ball.right, ball.bottom);
+
+            Rectangle(hdc, p1.left, p1.top, p1.right, p1.bottom);
+            Rectangle(hdc, p2.left, p2.top, p2.right, p2.bottom);
 
             EndPaint(hWnd, &ps);
         }
         break;
+
+    case WM_CREATE:
+    {
+        ball.left = (wWidth / 2) - ballSize;
+        ball.top = (wHeight / 2) - ballSize;
+        ball.right = (wWidth / 2) + ballSize;
+        ball.bottom = (wHeight / 2) + ballSize;
+
+        p1.left = 70 - p1Width;
+        p1.top = (wHeight / 2) - p1Height;
+        p1.right = 70 + p1Width;
+        p1.bottom = (wHeight / 2) + p1Height;
+
+        p2.left = (wWidth - 90) - p2Width;
+        p2.top = (wHeight / 2) - p2Height;
+        p2.right = (wWidth - 90) + p2Width;
+        p2.bottom = (wHeight / 2) + p2Height;
+    }
+    break;
+
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
