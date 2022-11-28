@@ -106,8 +106,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, wWidth, wHeight+60, nullptr, nullptr, hInstance, nullptr);
+   HWND hWnd = CreateWindowW(
+       szWindowClass, 
+       szTitle, 
+       WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME, //윈도우 기본 스타일에서 창 크기 최대화, 크기 변경을 비활성화
+       CW_USEDEFAULT, 
+       0, 
+       wWidth, 
+       wHeight+60, 
+       nullptr, 
+       nullptr, 
+       hInstance, 
+       nullptr
+   );
 
    if (!hWnd)
    {
@@ -152,6 +163,8 @@ int speed = 15;
 
 bool aPress, zPress, upPress, downPress = false;
 
+bool p1UpWall, p1DownWall, p2UpWall, p2DownWall = false;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -179,30 +192,71 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         switch (wParam)
         {
         case 0x41:
-            aPress = true;
+            if (false == p1UpWall) {
+                p1.top -= speed;
+                p1.bottom -= speed;
+            }
             break;
+
         case 0x5a:
-            p1.top += speed;
-            p1.bottom += speed;
+            if (false == p1DownWall) {
+                p1.top += speed;
+                p1.bottom += speed;
+            }
             break;
+
         case VK_UP:
-            p2.top -= speed;
-            p2.bottom -= speed;
+            if (false == p2UpWall) {
+                p2.top -= speed;
+                p2.bottom -= speed;
+            }
             break;
+
         case VK_DOWN:
-            p2.top += speed;
-            p2.bottom += speed;
+            if (false == p2DownWall) {
+                p2.top += speed;
+                p2.bottom += speed;
+            }
             break;
         }
-        if(aPress == true) {
-            p1.top -= speed;
-            p1.bottom -= speed;
+
+        //p1 막대가 윗쪽 벽에 도달했을 때
+        if (p1.top == 0) {
+            p1UpWall = true;
         }
+        else {
+            p1UpWall = false;
+        }
+
+        //p1 막대가 아랫쪽 벽에 도달했을 때
+        if (p1.bottom == wHeight) {
+            p1DownWall = true;
+        }
+        else {
+            p1DownWall = false;
+        }
+
+        //p2 막대가 윗쪽 벽에 도달했을 때
+        if (p2.top == 0) {
+            p2UpWall = true;
+        }
+        else {
+            p2UpWall = false;
+        }
+
+        //p2 막대가 아랫쪽 벽에 도달했을 때
+        if (p2.bottom == wHeight) {
+            p2DownWall = true;
+        }
+        else {
+            p2DownWall = false;
+        }
+        
         InvalidateRect(hWnd, NULL, true);
     }
     break;
 
-    case WM_KEYUP:
+    /*case WM_KEYUP:
     {
         switch (wParam)
         {
@@ -224,7 +278,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         InvalidateRect(hWnd, NULL, true);
     }
-    break;
+    break; */
 
     case WM_PAINT:
         {
