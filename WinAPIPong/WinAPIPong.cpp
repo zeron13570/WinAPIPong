@@ -4,6 +4,9 @@
 #include "framework.h"
 #include "WinAPIPong.h"
 
+#include <stdlib.h> // 랜덤 함수 사용
+#include <time.h>   // 시간 값 획득 : 랜덤 시드 값 생성용
+
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -143,27 +146,35 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 
 // 공의 크기
-int ballSize = 20;
+int ballSize = 15;
 
 // 1p 패들 높이
-int p1Height = 90;
+int p1Height = 60;
 // 1p 패들 폭
-int p1Width = 15;
+int p1Width = 8;
 
 // 2p 패들 높이
-int p2Height = 90;
+int p2Height = 60;
 // 2p 패들 폭
-int p2Width = 15;
+int p2Width = 8;
 
 HDC hdc;
 
 RECT ball, p1, p2;
+RECT ballTemp;
 
-int speed = 15;
+int speed = 10; // 막대의 속도
+int ballspeed = 13;
+int ballx = 8; // horizontal X speed value for the ball object 
+int bally = 8; // vertical Y speed value for the ball object
+int p1score = 0; // score for the player
+int p2score = 0; // score for the CPU
 
 bool aPress, zPress, upPress, downPress = false;
-
 bool p1UpWall, p1DownWall, p2UpWall, p2DownWall = false;
+bool first = false;
+
+int g_timer;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -193,70 +204,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         case 0x41:
             if (false == p1UpWall) {
-                p1.top -= speed;
-                p1.bottom -= speed;
+                aPress = true;
             }
             break;
 
         case 0x5a:
             if (false == p1DownWall) {
-                p1.top += speed;
-                p1.bottom += speed;
+                zPress = true;
             }
             break;
 
         case VK_UP:
             if (false == p2UpWall) {
-                p2.top -= speed;
-                p2.bottom -= speed;
+                upPress = true;
             }
             break;
 
         case VK_DOWN:
             if (false == p2DownWall) {
-                p2.top += speed;
-                p2.bottom += speed;
+                downPress = true;
             }
             break;
         }
-
-        //p1 막대가 윗쪽 벽에 도달했을 때
-        if (p1.top == 0) {
-            p1UpWall = true;
-        }
-        else {
-            p1UpWall = false;
-        }
-
-        //p1 막대가 아랫쪽 벽에 도달했을 때
-        if (p1.bottom == wHeight) {
-            p1DownWall = true;
-        }
-        else {
-            p1DownWall = false;
-        }
-
-        //p2 막대가 윗쪽 벽에 도달했을 때
-        if (p2.top == 0) {
-            p2UpWall = true;
-        }
-        else {
-            p2UpWall = false;
-        }
-
-        //p2 막대가 아랫쪽 벽에 도달했을 때
-        if (p2.bottom == wHeight) {
-            p2DownWall = true;
-        }
-        else {
-            p2DownWall = false;
-        }
         
-        InvalidateRect(hWnd, NULL, true);
+        //InvalidateRect(hWnd, NULL, true);
     }
     break;
 
-    /*case WM_KEYUP:
+    case WM_KEYUP:
     {
         switch (wParam)
         {
@@ -264,21 +239,128 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             aPress = false;
             break;
         case 0x5a:
-            p1.top += speed;
-            p1.bottom += speed;
+            zPress = false;
             break;
         case VK_UP:
-            p2.top -= speed;
-            p2.bottom -= speed;
+            upPress = false;
             break;
         case VK_DOWN:
-            p2.top += speed;
-            p2.bottom += speed;
+            downPress = false;
             break;
         }
-        InvalidateRect(hWnd, NULL, true);
+        //InvalidateRect(hWnd, NULL, true);
     }
-    break; */
+    break; 
+
+    case WM_TIMER:
+        if (1 == wParam)
+        {
+            // 타이머 재설정
+            KillTimer(hWnd, 1);
+            SetTimer(hWnd, 1, g_timer, NULL);
+
+// 키 입력 플래그에 의한 막대의 움직임
+            //A키를 입력하면 p1 막대가 위로 움직임
+            if (aPress == true && p1UpWall == false) {
+                p1.top -= speed;
+                p1.bottom -= speed;
+            }
+            //Z키를 입력하면 p1 막대가 아래로 움직임
+            if (zPress == true && p1DownWall == false) {
+                p1.top += speed;
+                p1.bottom += speed;
+            }
+            //UP키를 입력하면 p2 막대가 위로 움직임
+            if (upPress == true && p2UpWall == false) {
+                p2.top -= speed;
+                p2.bottom -= speed;
+            }
+            //DOWN키를 입력하면 p2 막대가 아래로 움직임
+            if (downPress == true && p2DownWall == false) {
+                p2.top += speed;
+                p2.bottom += speed;
+            }
+
+//   막대 벽 구현 공간
+            //p1 막대가 윗쪽 벽에 도달했을 때
+            if (p1.top == 0) {
+                p1UpWall = true;
+            }
+            else {
+                p1UpWall = false;
+            }
+            //p1 막대가 아랫쪽 벽에 도달했을 때
+            if (p1.bottom == wHeight) {
+                p1DownWall = true;
+            }
+            else {
+                p1DownWall = false;
+            }
+            //p2 막대가 윗쪽 벽에 도달했을 때
+            if (p2.top == 0) {
+                p2UpWall = true;
+            }
+            else {
+                p2UpWall = false;
+            }
+            //p2 막대가 아랫쪽 벽에 도달했을 때
+            if (p2.bottom == wHeight) {
+                p2DownWall = true;
+            }
+            else {
+                p2DownWall = false;
+            }
+
+            // 공의 움직임
+                ball.top -= bally;
+                ball.bottom -= bally;
+                ball.left -= ballx;
+                ball.right -= ballx;
+
+            // 공이 위아래 벽에 부딪힐 때 방향 전환
+            if (ball.top <= 0) {
+                bally = -bally;
+            }
+            if (ball.bottom >= wHeight) {
+                bally = -bally;
+            }
+
+            // 공이 p1 골에 들어갔을 때
+            if (ball.left < -40) {
+                ball.left = (wWidth / 2) - ballSize;
+                ball.top = (wHeight / 2) - ballSize;
+                ball.right = (wWidth / 2) + ballSize;
+                ball.bottom = (wHeight / 2) + ballSize;
+                ballspeed = 15;
+                ballx = -ballx;
+            }
+
+            // 공이 p2 골에 들어갔을 때
+            if (ball.right >= wWidth + 35) {
+                ball.left = (wWidth / 2) - ballSize;
+                ball.top = (wHeight / 2) - ballSize;
+                ball.right = (wWidth / 2) + ballSize;
+                ball.bottom = (wHeight / 2) + ballSize;
+                ballspeed = 15;
+                ballx = -ballx;
+            }
+
+            RECT isr;
+
+            // 공이 p1 막대와 충돌했을 때
+            if (true == IntersectRect(&isr, &ball, &p1))
+            {
+                ballx = -ballx;
+            }
+
+            // 공이 p2 막대와 충돌했을 때
+            if (true == IntersectRect(&isr, &ball, &p2))
+            {
+                ballx = -ballx;
+            }
+        }
+        InvalidateRect(hWnd, NULL, true);
+        break;
 
     case WM_PAINT:
         {
@@ -300,9 +382,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EndPaint(hWnd, &ps);
         }
         break;
-
+        
     case WM_CREATE:
     {
+        g_timer = 15;
+        first = true;
+
+        SetTimer(hWnd, 1, g_timer, NULL);
+
         ball.left = (wWidth / 2) - ballSize;
         ball.top = (wHeight / 2) - ballSize;
         ball.right = (wWidth / 2) + ballSize;

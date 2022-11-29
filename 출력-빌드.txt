@@ -1,0 +1,5 @@
+﻿빌드 시작...
+1>------ 빌드 시작: 프로젝트: WinAPIPong, 구성: Debug x64 ------
+1>WinAPIPong.cpp
+1>WinAPIPong.vcxproj -> C:\Users\YUHAN\Source\Repos\zeron13570\WinAPIPong\x64\Debug\WinAPIPong.exe
+========== 빌드: 성공 1, 실패 0, 최신 0, 생략 0 ==========
