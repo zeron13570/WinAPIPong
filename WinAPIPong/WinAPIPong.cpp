@@ -4,13 +4,9 @@
 #include "framework.h"
 #include "WinAPIPong.h"
 
-#include <stdio.h>
-#include <stdlib.h> // 랜덤 함수 사용
-#include <time.h>   // 시간 값 획득 : 랜덤 시드 값 생성용
-
 #define MAX_LOADSTRING 100
 
-// 전역 변수:
+// 전역 변수: 
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
@@ -59,8 +55,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     return (int)msg.wParam;
 }
 
-
-
 //
 //  함수: MyRegisterClass()
 //
@@ -97,13 +91,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //        이 함수를 통해 인스턴스 핸들을 전역 변수에 저장하고
 //        주 프로그램 창을 만든 다음 표시합니다.
 //
-
-//너비
-int wWidth = 1280;
-//높이
-int wHeight = 960;
-
-
 
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
@@ -146,68 +133,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 
-// 공의 크기
-int ballSize = 15;
-
-// 1p 패들 높이
-int p1Height = 60;
-// 1p 패들 폭
-int p1Width = 8;
-
-// 2p 패들 높이
-int p2Height = 60;
-// 2p 패들 폭
-int p2Width = 8;
-
-HDC hdc, MemDC;
-
-RECT ball, p1, p2;
-RECT ballTemp, p1Temp, p2Temp;
-RECT p1area, p2area;
-
-HBITMAP Line;
-
-int speed = 13; // 막대의 속도
-
-int ballx = 11; // 공의 x축 방향 및 속도
-int bally = 11; // 공의 y축 방향 및 속도
-int p1score = 0; // 1p 점수
-int p2score = 0; // 2p 점수
-
-bool aPress, zPress, upPress, downPress = false;
-bool p1UpWall, p1DownWall, p2UpWall, p2DownWall = false;
-bool startGame = false;
-
-int g_timer, gametime;
-
-char startmessage[] = "-PRESS ENTER TO START-";
-
-void DisplayScore(HDC hdc, int p1score, int p2score, char* message)
-{
-    HFONT hFont, OldFont;
-    TCHAR buffer[80];
-
-    hFont = CreateFont(150, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, VARIABLE_PITCH | FF_ROMAN, TEXT("FORCED SQUARE"));
-    OldFont = (HFONT)SelectObject(hdc, hFont);
-
-    SetTextColor(hdc, RGB(255, 255, 255));
-    SetBkMode(hdc, TRANSPARENT);
-    swprintf_s(buffer, 80, L"%d", p1score);
-    TextOut(hdc, 280, 100, buffer, wcslen(buffer));
-
-    swprintf_s(buffer, 80, L"%d", p2score);
-    TextOut(hdc, 900, 100, buffer, wcslen(buffer));
-
-
-    hFont = CreateFont(50, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, VARIABLE_PITCH | FF_ROMAN, TEXT("FORCED SQUARE"));
-    OldFont = (HFONT)SelectObject(hdc, hFont);
-
-    swprintf_s(buffer, 80, TEXT("%hs"), message);
-    TextOut(hdc, 280, 600, buffer, wcslen(buffer));
-
-    SelectObject(hdc, OldFont);
-    DeleteObject(hFont);
-}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {

@@ -13,3 +13,6 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <stdio.h>
+#include <time.h>   // 시간 값 획득 : 랜덤 시드 값 생성용
+
