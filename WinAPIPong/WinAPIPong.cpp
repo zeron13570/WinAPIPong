@@ -1,5 +1,5 @@
 ﻿// WinAPIPong.cpp : 애플리케이션에 대한 진입점을 정의합니다.
-// https://austinmorlan.com/posts/pong_clone/
+// 함수는 헤더에 구현되있음
 
 #include "framework.h"
 #include "WinAPIPong.h"
@@ -186,12 +186,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case VK_RETURN:
             if (false == startGame) {
-                strcpy_s(startmessage, "");
                 InvalidateRect(hWnd, NULL, true);
                 startGame = true;
-            }
-            else {
-                startGame = false;
             }
             break;
 
@@ -231,6 +227,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 타이머 재설정
             KillTimer(hWnd, 1);
             SetTimer(hWnd, 1, g_timer, NULL);
+
+            // 게임 시간 설정
+            SetTimer(hWnd, 2, gametime, NULL);
 
             // 키 입력 플래그에 의한 막대의 움직임
                         //A키를 입력하면 p1 막대가 위로 움직임
@@ -381,43 +380,100 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 bally = -bally;
             }
-        }
 
-        InvalidateRect(hWnd, &ballTemp, true);
+            // P1의 승리
+            if (p1score == 10)
+            {
+                // 타이머를 해제
+                KillTimer(hWnd, 1);
+                
+                MessageBox(hWnd, L"GAME OVER", L"PLAYER 1 WIN!", MB_OK);
+                startGame = false;
+
+                // 점수 초기화
+                p1score = 0;
+                p2score = 0;
+                SetTimer(hWnd, 1, g_timer, NULL);
+
+                // 위치 초기화
+                ball.left = (wWidth / 2) - ballSize;
+                ball.top = (wHeight / 2) - ballSize;
+                ball.right = (wWidth / 2) + ballSize;
+                ball.bottom = (wHeight / 2) + ballSize;
+
+                p1.left = 70 - p1Width;
+                p1.top = (wHeight / 2) - p1Height;
+                p1.right = 70 + p1Width;
+                p1.bottom = (wHeight / 2) + p1Height;
+
+                p2.left = (wWidth - 90) - p2Width;
+                p2.top = (wHeight / 2) - p2Height;
+                p2.right = (wWidth - 90) + p2Width;
+                p2.bottom = (wHeight / 2) + p2Height;
+
+                InvalidateRect(hWnd, NULL, true);
+            }
+
+            // P2의 승리
+            if (p2score == 10)
+            {
+                // 타이머를 해제
+                KillTimer(hWnd, 1);
+
+                MessageBox(hWnd, L"GAME OVER", L"PLAYER 2 WIN!", MB_OK);
+                startGame = false;
+                
+                // 점수 초기화
+                p1score = 0;
+                p2score = 0;
+                SetTimer(hWnd, 1, g_timer, NULL);
+
+                // 위치 초기화
+                ball.left = (wWidth / 2) - ballSize;
+                ball.top = (wHeight / 2) - ballSize;
+                ball.right = (wWidth / 2) + ballSize;
+                ball.bottom = (wHeight / 2) + ballSize;
+
+                p1.left = 70 - p1Width;
+                p1.top = (wHeight / 2) - p1Height;
+                p1.right = 70 + p1Width;
+                p1.bottom = (wHeight / 2) + p1Height;
+
+                p2.left = (wWidth - 90) - p2Width;
+                p2.top = (wHeight / 2) - p2Height;
+                p2.right = (wWidth - 90) + p2Width;
+                p2.bottom = (wHeight / 2) + p2Height;
+
+                InvalidateRect(hWnd, NULL, true);
+            }
+
+            InvalidateRect(hWnd, &ballTemp, true);
+        }  
         break;
 
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
-        hdc = BeginPaint(hWnd, &ps);
+        hdc = BeginPaint(hWnd, &ps);      
 
-        DisplayScore(hdc, p1score, p2score, startmessage);
+        // 게임 시작 플래그가 켜졌을 때
+        if (startGame == true) 
+        {
+            DisplayScore(hdc, p1score, p2score);
+            DrawLine(hdc);
 
-        /*
-        MemDC = CreateCompatibleDC(hdc);
+            Rectangle(hdc, ball.left, ball.top, ball.right, ball.bottom);
 
-        Line = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_PONG));
-        SelectObject(MemDC, Line);
-        BitBlt(hdc, 0, 0, 123, 160, MemDC, 0, 0, SRCCOPY); //복사 및 출력
+            Rectangle(hdc, p1.left, p1.top, p1.right, p1.bottom);
+            Rectangle(hdc, p2.left, p2.top, p2.right, p2.bottom);
+        }
 
-        DeleteObject(Line);
-        */
-
-        /* 중앙 수평 확인용
-        MoveToEx(hdc, (wWidth / 2), 0, nullptr);
-        LineTo(hdc, wWidth / 2, wHeight);
-        MoveToEx(hdc, 0, wHeight / 2, nullptr);
-        LineTo(hdc, wWidth, wHeight / 2);
-        */
-
-        Rectangle(hdc, ball.left, ball.top, ball.right, ball.bottom);
-
-        Rectangle(hdc, p1.left, p1.top, p1.right, p1.bottom);
-        Rectangle(hdc, p2.left, p2.top, p2.right, p2.bottom);
-
-        //Rectangle(hdc, p1area.left, p1area.top, p1area.right, p1area.bottom);
-        //Rectangle(hdc, p2area.left, p2area.top, p2area.right, p2area.bottom);
-
+        // 게임 중이 아닐 때
+        else
+        {    
+            TitleScreen(hdc, guideArea, title, startmessage, guidemessage);
+        }
+    
         EndPaint(hWnd, &ps);
     }
     break;
@@ -425,6 +481,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
     {
         g_timer = 10;
+        gametime = 1000;
         startGame = false;
 
         SetTimer(hWnd, 1, g_timer, NULL);
@@ -453,6 +510,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         p2area.top = 120;
         p2area.right = 1080;
         p2area.bottom = 240;
+
+        guideArea.left = 180;
+        guideArea.top = 280;
+        guideArea.right = 1100;
+        guideArea.bottom = 680;
     }
     break;
 
@@ -484,3 +546,29 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return (INT_PTR)FALSE;
 }
+
+
+//필요할때 쓰는 개발 참고용 코드 모음
+
+
+// WM_PAINT 전용
+/*
+        MemDC = CreateCompatibleDC(hdc);
+
+        Line = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_PONG));
+        SelectObject(MemDC, Line);
+        BitBlt(hdc, 0, 0, 123, 160, MemDC, 0, 0, SRCCOPY); //복사 및 출력
+
+        DeleteObject(Line);
+        */
+
+        /* 중앙 수평 확인용
+        MoveToEx(hdc, (wWidth / 2), 0, nullptr);
+        LineTo(hdc, wWidth / 2, wHeight);
+        MoveToEx(hdc, 0, wHeight / 2, nullptr);
+        LineTo(hdc, wWidth, wHeight / 2);
+        */
+
+        //Rectangle(hdc, guideArea.left, guideArea.top, guideArea.right, guideArea.bottom);
+        //Rectangle(hdc, p1area.left, p1area.top, p1area.right, p1area.bottom);
+        //Rectangle(hdc, p2area.left, p2area.top, p2area.right, p2area.bottom);

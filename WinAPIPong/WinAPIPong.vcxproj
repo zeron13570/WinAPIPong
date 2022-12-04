@@ -24,6 +24,7 @@
     <ProjectGuid>{25dd4ec1-48e9-44d7-a3b9-fb5a1e94f7d9}</ProjectGuid>
     <RootNamespace>WinAPIPong</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Pong</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -139,8 +140,6 @@
     <ResourceCompile Include="WinAPIPong.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="bitmap1.bmp" />
-    <Image Include="C:\Users\zeron\Downloads\pong.png" />
     <Image Include="small.ico" />
     <Image Include="WinAPIPong.ico" />
   </ItemGroup>
