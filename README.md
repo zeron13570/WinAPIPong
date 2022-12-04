@@ -2,8 +2,7 @@ __Pong__
 ===
 
 
-A remake of the __Pong__ of Atari(1972) with Win32 API.  
-I am a beginner in programming and this is still immature. Thank you for your understanding
+A beginner's first project that remake of the __Pong__ of Atari(1972) with Win32 API.  
 
 
 __Demo__
@@ -22,4 +21,4 @@ Exit   |     ESC
 
 
  __NOTE__: Before you play, you need to intstall:
-  * [Forced Square Font]([http://www.libsdl.org/download-2.0.php](https://www.dafont.com/forced-square.font))
+  * [Forced Square Font](https://www.dafont.com/forced-square.font)
