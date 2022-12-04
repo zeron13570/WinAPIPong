@@ -6,11 +6,12 @@ A beginner's first project that remake of the __Pong__ of Atari(1972) with Win32
 
 
 __Demo__
+
 ![Game Image](demo.png)
 
 
 
-__How to play__
+__Keys__
 
 Action |     Keys    
 ------ | -----------
