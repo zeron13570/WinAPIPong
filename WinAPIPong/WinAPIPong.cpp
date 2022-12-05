@@ -1,5 +1,4 @@
 ﻿// WinAPIPong.cpp : 애플리케이션에 대한 진입점을 정의합니다.
-// 함수는 헤더에 구현되있음
 
 #include "framework.h"
 #include "WinAPIPong.h"
@@ -71,12 +70,12 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
     wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINAPIPONG));
+    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_PONG));
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_WINAPIPONG);
     wcex.lpszClassName = szWindowClass;
-    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_PONG));
 
     return RegisterClassExW(&wcex);
 }
@@ -195,7 +194,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DestroyWindow(hWnd);
             break;
         }
-        //InvalidateRect(hWnd, NULL, true);
     }
     break;
 
@@ -228,45 +226,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             KillTimer(hWnd, 1);
             SetTimer(hWnd, 1, g_timer, NULL);
 
-            // 게임 시간 설정
-            SetTimer(hWnd, 2, gametime, NULL);
 
             // 키 입력 플래그에 의한 막대의 움직임
-                        //A키를 입력하면 p1 막대가 위로 움직임
-
-            p1Temp = p1;
+            //A키를 입력하면 p1 막대가 위로 움직임
 
             if (aPress == true && p1UpWall == false) {
                 p1.top -= speed;
                 p1.bottom -= speed;
-                InvalidateRect(hWnd, &p1Temp, true);
             }
             //Z키를 입력하면 p1 막대가 아래로 움직임
             if (zPress == true && p1DownWall == false) {
                 p1.top += speed;
                 p1.bottom += speed;
-                InvalidateRect(hWnd, &p1Temp, true);
             }
-
-            p2Temp = p2;
 
             //UP키를 입력하면 p2 막대가 위로 움직임
             if (upPress == true && p2UpWall == false) {
                 p2.top -= speed;
                 p2.bottom -= speed;
-                InvalidateRect(hWnd, &p2Temp, true);
+              
             }
             //DOWN키를 입력하면 p2 막대가 아래로 움직임
             if (downPress == true && p2DownWall == false) {
                 p2.top += speed;
                 p2.bottom += speed;
-                InvalidateRect(hWnd, &p2Temp, true);
             }
 
-
-
             //   막대 벽 구현 공간
-                        //p1 막대가 윗쪽 벽에 도달했을 때
+            //p1 막대가 윗쪽 벽에 도달했을 때
             if (p1.top <= 0) {
                 p1UpWall = true;
             }
@@ -295,8 +282,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 p2DownWall = false;
             }
 
-            ballTemp = ball;
-
             // 공의 움직임
             ball.top -= bally;
             ball.bottom -= bally;
@@ -324,7 +309,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 // 방향 반전
                 ballx = -ballx;
-                InvalidateRect(hWnd, &p2area, true);
             }
 
             // 공이 p2 골에 들어갔을 때
@@ -340,7 +324,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 // 방향 반전
                 ballx = -ballx;
-                InvalidateRect(hWnd, &p1area, true);
             }
 
             //RECT isr;
@@ -353,7 +336,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 ballx = -ballx;
             }
-
 
             if (ball.left <= p1.right &&
                 ball.left > p1.left &&
@@ -372,7 +354,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 ballx = -ballx;
             }
 
-
             if (ball.right >= p2.left &&
                 ball.right < p2.right &&
                 ball.bottom >= p2.top &&
@@ -381,19 +362,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 bally = -bally;
             }
 
-            // P1의 승리
-            if (p1score == 10)
+            // P1이 10점을 득점
+            if (p1score == 10 || gametime == 0)
             {
-                // 타이머를 해제
-                KillTimer(hWnd, 1);
-                
-                MessageBox(hWnd, L"GAME OVER", L"PLAYER 1 WIN!", MB_OK);
                 startGame = false;
 
-                // 점수 초기화
-                p1score = 0;
-                p2score = 0;
+                // 타이머를 해제
+                KillTimer(hWnd, 1);
+               
                 SetTimer(hWnd, 1, g_timer, NULL);
+
+                KillTimer(hWnd, 2);
+                SetTimer(hWnd, 2, timerInterval, NULL);
 
                 // 위치 초기화
                 ball.left = (wWidth / 2) - ballSize;
@@ -411,22 +391,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 p2.right = (wWidth - 90) + p2Width;
                 p2.bottom = (wHeight / 2) + p2Height;
 
-                InvalidateRect(hWnd, NULL, true);
-            }
-
-            // P2의 승리
-            if (p2score == 10)
-            {
-                // 타이머를 해제
-                KillTimer(hWnd, 1);
-
-                MessageBox(hWnd, L"GAME OVER", L"PLAYER 2 WIN!", MB_OK);
-                startGame = false;
-                
+                if (p1score > p2score || p1score == 10)
+                {  
+                    MessageBox(hWnd, L"PLAYER 1 WIN!", L"GAME OVER", MB_OK);               
+                }
+                else if (p1score == p2score)
+                {
+                    MessageBox(hWnd, L"DRAW !!", L"GAME OVER", MB_OK);
+                }
                 // 점수 초기화
                 p1score = 0;
                 p2score = 0;
+                gametime = 120;
+            }
+
+            // P2가 10점을 득점
+            if (p2score == 10 || gametime == 0)
+            {
+                startGame = false;
+
+                // 타이머를 해제
+                KillTimer(hWnd, 1);
+             
                 SetTimer(hWnd, 1, g_timer, NULL);
+
+                KillTimer(hWnd, 2);
+                SetTimer(hWnd, 2, timerInterval, NULL);
 
                 // 위치 초기화
                 ball.left = (wWidth / 2) - ballSize;
@@ -444,47 +434,99 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 p2.right = (wWidth - 90) + p2Width;
                 p2.bottom = (wHeight / 2) + p2Height;
 
-                InvalidateRect(hWnd, NULL, true);
-            }
+                if (p1score < p2score || p2score == 10)
+                {
+                    MessageBox(hWnd, L"PLAYER 2 WIN!", L"GAME OVER", MB_OK);              
+                }
+                else if (p1score == p2score)
+                {
+                    MessageBox(hWnd, L"DRAW !!", L"GAME OVER", MB_OK);
+                }
 
-            InvalidateRect(hWnd, &ballTemp, true);
+                // 점수 초기화
+                p1score = 0;
+                p2score = 0;
+                gametime = GAME_TIME;
+            }
+            // 이중 버퍼링 믿고 전부 갱신
+            InvalidateRect(hWnd, NULL, false);
         }  
+
+        // 초 단위로 줄어드는 인게임 제한시간
+        if (2 == wParam && startGame == true)
+        {
+            KillTimer(hWnd, 2);
+            SetTimer(hWnd, 2, timerInterval, NULL);
+
+            gametime--;
+        }
         break;
 
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
-        hdc = BeginPaint(hWnd, &ps);      
+
+        // 이중 버퍼링 설정
+        static HDC hdc, MemDC;
+        static HBITMAP BackBit, oldBackBit;
+        static RECT bufferRT;
+        MemDC = BeginPaint(hWnd, &ps);
+
+        // 이중 버퍼링 시작
+        GetClientRect(hWnd, &bufferRT);
+
+        hdc = CreateCompatibleDC(MemDC);
+
+        BackBit = CreateCompatibleBitmap(MemDC, bufferRT.right, bufferRT.bottom);
+        oldBackBit = (HBITMAP)SelectObject(hdc, BackBit);
+        PatBlt(hdc, 0, 0, bufferRT.right, bufferRT.bottom, SRCCOPY);
 
         // 게임 시작 플래그가 켜졌을 때
         if (startGame == true) 
         {
+            // 점수판과 중앙선 그리기
             DisplayScore(hdc, p1score, p2score);
             DrawLine(hdc);
+            inGameTime(hdc, gametime, timechr);
 
-            Rectangle(hdc, ball.left, ball.top, ball.right, ball.bottom);
-
+            // 공과 패들을 생성
+            Ellipse(hdc, ball.left, ball.top, ball.right, ball.bottom);
             Rectangle(hdc, p1.left, p1.top, p1.right, p1.bottom);
             Rectangle(hdc, p2.left, p2.top, p2.right, p2.bottom);
         }
 
         // 게임 중이 아닐 때
         else
-        {    
+        {   
+            // 타이틀 화면을 호출
             TitleScreen(hdc, guideArea, title, startmessage, guidemessage);
         }
     
+        // 이중 버퍼링 마무리
+        GetClientRect(hWnd, &bufferRT);
+
+        BitBlt(MemDC, 0, 0, bufferRT.right, bufferRT.bottom, hdc, 0, 0, SRCCOPY);
+
+        SelectObject(hdc, oldBackBit);
+        DeleteObject(BackBit);
+        DeleteDC(hdc);
         EndPaint(hWnd, &ps);
     }
     break;
 
     case WM_CREATE:
     {
-        g_timer = 10;
-        gametime = 1000;
         startGame = false;
 
+        // 타이머 인터벌 설정
+        g_timer = 15;
+        timerInterval = 1000;
+
+        // 인게임 제한시간 설정
+        gametime = GAME_TIME;
+
         SetTimer(hWnd, 1, g_timer, NULL);
+        SetTimer(hWnd, 2, timerInterval, NULL);
 
         ball.left = (wWidth / 2) - ballSize;
         ball.top = (wHeight / 2) - ballSize;
@@ -500,6 +542,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         p2.top = (wHeight / 2) - p2Height;
         p2.right = (wWidth - 90) + p2Width;
         p2.bottom = (wHeight / 2) + p2Height;
+
+        ball.left = ball.left + 10;
+        ball.top = ball.top + 10;
+        ball.right = ball.right + 10;
+        ball.bottom = ball.bottom + 10;
 
         p1area.left = 200;
         p1area.top = 120;
@@ -552,15 +599,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 // WM_PAINT 전용
-/*
-        MemDC = CreateCompatibleDC(hdc);
-
-        Line = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_PONG));
-        SelectObject(MemDC, Line);
-        BitBlt(hdc, 0, 0, 123, 160, MemDC, 0, 0, SRCCOPY); //복사 및 출력
-
-        DeleteObject(Line);
-        */
 
         /* 중앙 수평 확인용
         MoveToEx(hdc, (wWidth / 2), 0, nullptr);

@@ -45,5 +45,11 @@
     <Image Include="WinAPIPong.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="icon1.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="pong.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>
