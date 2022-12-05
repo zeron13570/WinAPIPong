@@ -39,17 +39,13 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="WinAPIPong.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="icon1.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
     <Image Include="pong.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\..\..\..\..\Downloads\forced_square\FORCED SQUARE.ttf">
+      <Filter>리소스 파일</Filter>
+    </Font>
   </ItemGroup>
 </Project>

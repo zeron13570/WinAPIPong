@@ -518,6 +518,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         startGame = false;
 
+        // 폰트 불러오기
+        AddFontResource(L"./FORCED SQUARE.ttf");
+        RemoveFontResource(L"./FORCED SQUARE.ttf");
+
         // 타이머 인터벌 설정
         g_timer = 15;
         timerInterval = 1000;

@@ -140,10 +140,10 @@
     <ResourceCompile Include="WinAPIPong.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon1.ico" />
     <Image Include="pong.ico" />
-    <Image Include="small.ico" />
-    <Image Include="WinAPIPong.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\..\..\..\..\Downloads\forced_square\FORCED SQUARE.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
