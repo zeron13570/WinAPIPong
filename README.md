@@ -36,7 +36,7 @@ Exit   |     ESC
 
 __This game requires following:__
 
- __NOTE__: in v1.0, you don't need to install fonts!
+
  
   * [Forced Square Font](https://www.dafont.com/forced-square.font)
   * [Microsoft Visual C++ Redistributable packages](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
