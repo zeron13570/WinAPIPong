@@ -147,6 +147,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
             break;
         case IDM_EXIT:
+            RemoveFontResource(L"./FORCED SQUARE.ttf");
             DestroyWindow(hWnd);
             break;
         default:
@@ -191,6 +192,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case VK_ESCAPE:
+            RemoveFontResource(L"./FORCED SQUARE.ttf");
             DestroyWindow(hWnd);
             break;
         }
@@ -300,6 +302,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (ball.left < -40) {
 
                 p2score++;
+                gametime++;
 
                 // 공 위치 재설정
                 ball.left = (wWidth / 2) - ballSize;
@@ -315,6 +318,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (ball.right >= wWidth + 35) {
 
                 p1score++;
+                gametime++;
 
                 // 공 위치 재설정
                 ball.left = (wWidth / 2) - ballSize;
@@ -362,8 +366,55 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 bally = -bally;
             }
 
+            // 시간 다됨
+            if (gametime == 0)
+            {
+                startGame = false;
+
+                // 타이머를 해제
+                KillTimer(hWnd, 1);
+
+                SetTimer(hWnd, 1, g_timer, NULL);
+
+                KillTimer(hWnd, 2);
+                SetTimer(hWnd, 2, timerInterval, NULL);
+
+                // 위치 초기화
+                ball.left = (wWidth / 2) - ballSize;
+                ball.top = (wHeight / 2) - ballSize;
+                ball.right = (wWidth / 2) + ballSize;
+                ball.bottom = (wHeight / 2) + ballSize;
+
+                p1.left = 70 - p1Width;
+                p1.top = (wHeight / 2) - p1Height;
+                p1.right = 70 + p1Width;
+                p1.bottom = (wHeight / 2) + p1Height;
+
+                p2.left = (wWidth - 90) - p2Width;
+                p2.top = (wHeight / 2) - p2Height;
+                p2.right = (wWidth - 90) + p2Width;
+                p2.bottom = (wHeight / 2) + p2Height;
+
+                if (p1score > p2score)
+                {
+                    MessageBox(hWnd, L"PLAYER 1 WIN!", L"TIME OVER", MB_OK);
+                }
+                else if (p1score < p2score)
+                {
+                    MessageBox(hWnd, L"PLAYER 2 WIN!", L"TIME OVER", MB_OK);
+                }
+                else if (p1score == p2score)
+                {
+                    MessageBox(hWnd, L"DRAW !!", L"TIME OVER", MB_OK);
+                }
+                // 점수 초기화
+                p1score = 0;
+                p2score = 0;
+                gametime = GAME_TIME;
+            }
+
             // P1이 10점을 득점
-            if (p1score == 10 || gametime == 0)
+            if (p1score == 10)
             {
                 startGame = false;
 
@@ -391,22 +442,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 p2.right = (wWidth - 90) + p2Width;
                 p2.bottom = (wHeight / 2) + p2Height;
 
-                if (p1score > p2score || p1score == 10)
-                {  
-                    MessageBox(hWnd, L"PLAYER 1 WIN!", L"GAME OVER", MB_OK);               
-                }
-                else if (p1score == p2score)
-                {
-                    MessageBox(hWnd, L"DRAW !!", L"GAME OVER", MB_OK);
-                }
+                MessageBox(hWnd, L"PLAYER 1 WIN!", L"GAME OVER", MB_OK);
+
+              
                 // 점수 초기화
                 p1score = 0;
                 p2score = 0;
-                gametime = 120;
+                gametime = GAME_TIME;
             }
 
             // P2가 10점을 득점
-            if (p2score == 10 || gametime == 0)
+            if (p2score == 10)
             {
                 startGame = false;
 
@@ -434,14 +480,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 p2.right = (wWidth - 90) + p2Width;
                 p2.bottom = (wHeight / 2) + p2Height;
 
-                if (p1score < p2score || p2score == 10)
-                {
-                    MessageBox(hWnd, L"PLAYER 2 WIN!", L"GAME OVER", MB_OK);              
-                }
-                else if (p1score == p2score)
-                {
-                    MessageBox(hWnd, L"DRAW !!", L"GAME OVER", MB_OK);
-                }
+                MessageBox(hWnd, L"PLAYER 2 WIN!", L"GAME OVER", MB_OK);
 
                 // 점수 초기화
                 p1score = 0;
@@ -467,9 +506,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
 
         // 이중 버퍼링 설정
-        static HDC hdc, MemDC;
-        static HBITMAP BackBit, oldBackBit;
-        static RECT bufferRT;
+        HDC hdc, MemDC;
+        HBITMAP BackBit, oldBackBit;
+        RECT bufferRT;
         MemDC = BeginPaint(hWnd, &ps);
 
         // 이중 버퍼링 시작
@@ -520,7 +559,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         // 폰트 불러오기
         AddFontResource(L"./FORCED SQUARE.ttf");
-        RemoveFontResource(L"./FORCED SQUARE.ttf");
 
         // 타이머 인터벌 설정
         g_timer = 15;

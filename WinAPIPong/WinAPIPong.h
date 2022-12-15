@@ -9,7 +9,7 @@
 #define wHeight  960
 
 //게임 제한시간
-#define GAME_TIME 120
+#define GAME_TIME 30
 
 // 공의 크기
 int ballSize = 11;
